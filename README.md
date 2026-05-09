@@ -1,72 +1,67 @@
 # Noise-Aware Federated Learning for Robust Diabetic Retinopathy Classification
 
-> **Binus University — School of Computer Science**  
-> Research Methodology | Semester 4 | Group 15
-
 ---
 
 ## Overview
 
-Diabetic Retinopathy (DR) adalah salah satu penyebab utama kebutaan di kalangan usia produktif, mempengaruhi lebih dari 103 juta orang secara global. Deteksi dini melalui retinal fundus images sangat penting, namun terhambat oleh keterbatasan akses ke tenaga ahli dan infrastruktur diagnostik — terutama di wilayah low-resource.
+Diabetic Retinopathy (DR) is a leading cause of blindness among working-age adults, affecting over 103 million people globally. Early detection through automated retinal fundus image analysis is critical — yet challenging in low-resource settings where imaging equipment is outdated, lighting is poor, and diagnostic expertise is scarce.
 
-Proyek ini mengusulkan framework **Noise-Aware Federated Learning** untuk klasifikasi DR yang mampu bekerja secara robust di kondisi nyata tanpa perlu memusatkan data pasien. Sistem mensimulasikan setting multi-institusi dengan memperlakukan tiga dataset publik sebagai klien independen dengan distribusi data non-IID.
+This project proposes a **Noise-Aware Federated Learning** framework for DR classification that improves model robustness under real-world image degradation, without centralizing sensitive patient data. The system simulates a realistic multi-institutional setting by treating three public datasets as independent FL clients with non-IID data distributions.
+
+Three training paradigms are systematically compared across two model architectures, with evaluation on both clean and degraded test sets to quantify robustness.
 
 ---
 
 ## The Problem
 
-Dua tantangan utama dalam deployment model DR di dunia nyata:
+Two core challenges in real-world DR deployment:
 
-1. **Privacy** — Data pasien dari berbagai institusi tidak bisa dibagikan secara bebas karena regulasi seperti HIPAA dan GDPR
-2. **Image Quality Degradation** — Fasilitas kesehatan di wilayah terbatas sering menghasilkan gambar berkualitas rendah akibat peralatan usang, pencahayaan buruk, dan artefak kompresi
-
-Pendekatan FL yang ada umumnya hanya mensimulasikan degradasi menggunakan JPEG compression saja, yang tidak mencerminkan kondisi nyata.
+1. **Privacy** — Patient data across institutions cannot be freely shared due to regulations such as HIPAA and GDPR
+2. **Image Quality Degradation** — Low-resource healthcare facilities produce poor-quality fundus images due to outdated equipment, motion artifacts, and compression — yet most existing FL approaches only simulate degradation via JPEG compression, which fails to reflect real-world complexity
 
 ---
 
 ## Proposed Solution
 
-Framework ini menggabungkan dua komponen utama:
+**Federated Learning (FedAvg)** enables collaborative model training across institutions without sharing raw data — only model weights are sent to a central server for weighted aggregation.
 
-**Federated Learning (FedAvg)** memungkinkan model ditraining secara kolaboratif di multiple institusi tanpa berbagi raw data — hanya model weights yang dikirim ke central server untuk diagregasi.
+**Noise-Aware Augmentation Pipeline** simulates realistic image degradation during local training:
 
-**Noise-Aware Augmentation Pipeline** mensimulasikan degradasi gambar yang realistis selama training:
-
-| Jenis Degradasi | Parameter | Kondisi yang Disimulasikan |
-|-----------------|-----------|---------------------------|
-| Gaussian Noise | σ ∈ [0.01, 0.05] | Sensor noise, artefak kompresi |
+| Degradation | Parameter | Simulates |
+|-------------|-----------|-----------|
+| Gaussian Noise | σ ∈ [0.01, 0.05] | Sensor noise, compression artifacts |
 | Gaussian Blur | σ ∈ [1.0, 3.0] | Defocus, motion blur |
-| Brightness/Contrast | ±0.2 / [0.7, 1.3] | Low-light, inkonsistensi akuisisi |
+| Brightness/Contrast | ±0.2 / [0.7, 1.3] | Low-light, inconsistent acquisition |
 
-Augmentasi diterapkan secara **stochastic (50% probability per jenis)** saat training, sehingga model belajar representasi yang lebih robust terhadap variasi kualitas gambar.
+Augmentation is applied **stochastically (50% probability per type)** during training — each sample sees a different degradation realization per epoch, encouraging the model to learn robust, degradation-invariant representations.
 
 ---
 
 ## Experiments
 
-Tiga paradigma training dibandingkan secara sistematis:
+Three paradigms compared:
 
-| # | Paradigma | Deskripsi |
-|---|-----------|-----------|
-| 1 | **Centralized** | Semua data di-pool — upper-bound baseline |
-| 2 | **Standard FedAvg** | FL tanpa noise augmentation |
-| 3 | **Noise-Aware FedAvg** | FL dengan stochastic noise augmentation *(proposed)* |
+| # | Paradigm | Description |
+|---|----------|-------------|
+| 1 | **Centralized** | All data pooled — upper-bound baseline |
+| 2 | **Standard FedAvg** | FL without noise augmentation |
+| 3 | **Noise-Aware FedAvg** | FL with stochastic noise augmentation *(proposed)* |
 
-Masing-masing dijalankan pada dua arsitektur model:
-- **EfficientNetB0** — model utama, compound scaling efficiency
-- **MobileNetV2** — lightweight alternative untuk resource-constrained environments
+Each paradigm is run on two architectures:
+- **EfficientNetB0** — primary model, compound scaling efficiency
+- **MobileNetV2** — lightweight alternative for resource-constrained environments
 
 ---
 
 ## Datasets
 
-| Dataset | Images | Keterangan |
-|---------|--------|------------|
+| Dataset | Images | Description |
+|---------|--------|-------------|
 | [DDR](https://www.kaggle.com/datasets/mariaherrerot/ddrdataset) | 13,673 | Multi-ethnic, multi-device |
 | [EyePACS](https://www.kaggle.com/competitions/diabetic-retinopathy-detection) | 35,126 | Large-scale screening dataset |
 | [APTOS 2019](https://www.kaggle.com/competitions/aptos2019-blindness-detection) | 3,662 | Rural India clinical setting |
 
-Semua dataset menggunakan **ICDR grading scale** (5 kelas: Grade 0 — No DR hingga Grade 4 — Proliferative DR). Variasi natural antar dataset dalam hal perangkat imaging, kondisi akuisisi, dan demografi pasien menciptakan distribusi **non-IID** yang realistis antar klien.
+All datasets follow the **ICDR grading scale** (5 classes: Grade 0 — No DR to Grade 4 — Proliferative DR). Natural variation across datasets in imaging devices, acquisition conditions, and patient demographics creates realistic **non-IID** distributions across FL clients.
 
 ---
 
@@ -79,14 +74,14 @@ Semua dataset menggunakan **ICDR grading scale** (5 kelas: Grade 0 — No DR hin
 | Batch Size | 32 |
 | FL Communication Rounds | 20 |
 | Local Epochs per Round | 5 |
-| FL Stage 1 (frozen backbone) | Rounds 1–10 |
-| FL Stage 2 (unfreeze top-10) | Rounds 11–20 |
+| FL Stage 1 — frozen backbone | Rounds 1–10 |
+| FL Stage 2 — unfreeze top-10 layers | Rounds 11–20 |
 | Class Weighting | Balanced (inverse-frequency) |
 | Data Split | 70:15:15 stratified per client |
 
-Model diinisialisasi dengan **ImageNet pretrained weights** dan menggunakan two-stage training: backbone frozen terlebih dahulu, lalu top-10 layers di-unfreeze untuk domain-specific fine-tuning dengan BatchNorm tetap frozen.
+Both models use **ImageNet pretrained weights** with two-stage training: backbone frozen first, then top-10 layers unfrozen for domain-specific fine-tuning (BatchNorm remains frozen throughout).
 
-**FL Aggregation (FedAvg):**
+**FL Aggregation (dataset-size-weighted FedAvg):**
 
 $$W_{r+1} = \sum_k \frac{n_k}{n} \cdot W_k^r$$
 
@@ -94,17 +89,17 @@ $$W_{r+1} = \sum_k \frac{n_k}{n} \cdot W_k^r$$
 
 ## Evaluation
 
-Model dievaluasi pada dua kondisi untuk mengukur robustness:
-- **Clean test set** — gambar tanpa degradasi
-- **Noisy test set** — gambar dengan deterministic degradation (fixed seed)
+Each model is evaluated on two test conditions:
+- **Clean test set** — unmodified images
+- **Noisy test set** — deterministic degradation applied with fixed seed (identical across all 6 notebooks for fair comparison)
 
-| Metric | Keterangan |
-|--------|------------|
+| Metric | Description |
+|--------|-------------|
 | Accuracy | Overall classification accuracy |
-| Precision / Recall / F1 | Macro-averaged (menangani class imbalance) |
+| Precision / Recall / F1 | Macro-averaged |
 | AUC-ROC | One-vs-Rest macro AUC |
-| QWK | Quadratic Weighted Kappa — clinically relevant untuk ordinal DR grading |
-| **Robustness Drop** | `M(clean) − M(noisy)` — semakin kecil = semakin robust |
+| QWK | Quadratic Weighted Kappa — clinically relevant for ordinal DR grading |
+| **Robustness Drop** | `M(clean) − M(noisy)` — lower = more robust |
 
 ---
 
@@ -131,7 +126,7 @@ Model dievaluasi pada dua kondisi untuk mengukur robustness:
         └── exp3_noise_aware_fl/
 ```
 
-Setiap experiment folder berisi:
+Each experiment folder contains:
 ```
 ├── models/    ← model checkpoints (.keras)
 ├── logs/      ← metrics JSON, per-class CSV, summary CSV
@@ -169,7 +164,3 @@ Setiap experiment folder berisi:
 | Darrell Richie Wibawa | Methodology, Formal Analysis, Writing (original draft & review) |
 | Arya Krisna Putra | Supervisor |
 | Irene Anindaputri Iswanto | Supervisor |
-
----
-
-*Binus University — School of Computer Science — Jakarta, Indonesia*
