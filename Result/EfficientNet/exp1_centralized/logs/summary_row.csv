@@ -1,0 +1,2 @@
+experiment,paradigm,model,clean_accuracy,clean_precision_macro,clean_recall_macro,clean_f1_macro,clean_auc_roc,clean_qwk,noisy_accuracy,noisy_precision_macro,noisy_recall_macro,noisy_f1_macro,noisy_auc_roc,noisy_qwk,drop_accuracy,drop_precision_macro,drop_recall_macro,drop_f1_macro,drop_auc_roc,drop_qwk
+exp1_centralized,Centralized,EfficientNetB0,0.02533125487139517,0.005066250974279034,0.2,0.009882174078297225,0.5038078247566828,0.0,0.02533125487139517,0.005066250974279034,0.2,0.009882174078297225,0.5041878002797748,0.0,0.0,0.0,0.0,0.0,-0.000379975523091991,0.0
