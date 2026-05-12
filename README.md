@@ -145,22 +145,3 @@ Each experiment folder contains:
 
 ---
 
-## References
-
-- McMahan et al. (2017). *Communication-Efficient Learning of Deep Networks from Decentralized Data.* AISTATS.
-- Tan & Le (2019). *EfficientNet: Rethinking Model Scaling for CNNs.* ICML.
-- Mohan Raj et al. (2024). *Federated Learning for Diabetic Retinopathy Diagnosis.* arXiv:2411.00869.
-- Sandler et al. (2018). *MobileNetV2: Inverted Residuals and Linear Bottlenecks.* CVPR.
-- Hendrycks & Dietterich (2019). *Benchmarking Neural Network Robustness to Common Corruptions.* arXiv.
-
----
-
-## Authors
-
-| Name | Role |
-|------|------|
-| Akira Agha Nugroho | Conceptualization, Methodology, Software, Data Curation |
-| Derry Riccardo | Conceptualization, Methodology, Data Curation, Formal Analysis, Writing |
-| Darrell Richie Wibawa | Methodology, Formal Analysis, Writing (original draft & review) |
-| Arya Krisna Putra | Supervisor |
-| Irene Anindaputri Iswanto | Supervisor |
