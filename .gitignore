@@ -1,0 +1,61 @@
+# ── Model Checkpoints & Weights ──────────────────────────────────
+*.keras
+*.h5
+*.pt
+*.pth
+*.pkl
+*.joblib
+
+# ── Dataset Files (terlalu besar untuk GitHub) ───────────────────
+*.npz
+*.npy
+*.parquet
+
+# ── Notebook Checkpoints ─────────────────────────────────────────
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# ── Python Cache ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual Environments ──────────────────────────────────────────
+venv/
+env/
+.env
+.venv/
+
+# ── Jupyter & IDE ─────────────────────────────────────────────────
+.jupyter/
+.vscode/
+*.code-workspace
+
+# ── OS Files ──────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── Google Colab / Drive Sync ─────────────────────────────────────
+*.gdown_cache
+gdrive_cache/
+
+# ── Logs & Temp ───────────────────────────────────────────────────
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# ── Result folder — ignore berat, keep summary ───────────────────
+Result/**/*.keras
+Result/**/*.png
+Result/**/*.jpg
+Result/**/training_history.csv
+Result/**/per_class_clean.csv
+Result/**/per_class_noisy.csv
+Result/**/fl_round_summary.csv
