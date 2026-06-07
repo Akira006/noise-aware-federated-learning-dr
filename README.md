@@ -63,6 +63,18 @@ Each paradigm is run on two architectures:
 
 All datasets follow the **ICDR grading scale** (5 classes: Grade 0 — No DR to Grade 4 — Proliferative DR). Natural variation across datasets in imaging devices, acquisition conditions, and patient demographics creates realistic **non-IID** distributions across FL clients.
 
+### Class Rebalancing
+
+Raw datasets are heavily dominated by Grade 0 (No DR), which can cause models to trivially predict the majority class. A **tiered stratified undersampling** strategy was applied per dataset prior to training to reduce class imbalance while preserving meaningful representation of each severity grade.
+
+| Client | Original | After Rebalancing |
+|--------|----------|-------------------|
+| DDR | 13,673 | 3,729 |
+| EyePACS | 35,126 | 8,581 |
+| APTOS | 3,662 | 1,858 |
+
+Rebalanced datasets are stored as `.npz` files and loaded directly during training. All splits (70:15:15) are performed on the rebalanced data using stratified sampling to maintain class distribution consistency across train, validation, and test sets.
+
 ---
 
 ## Training Setup
@@ -72,12 +84,15 @@ All datasets follow the **ICDR grading scale** (5 classes: Grade 0 — No DR to 
 | Optimizer | Adam |
 | Learning Rate | 1e-4 |
 | Batch Size | 32 |
-| FL Communication Rounds | 20 |
-| Local Epochs per Round | 5 |
-| FL Stage 1 — frozen backbone | Rounds 1–10 |
-| FL Stage 2 — unfreeze top-10 layers | Rounds 11–20 |
+| Centralized Stage 1 (frozen) | 30 epochs |
+| Centralized Stage 2 (unfrozen) | 30 epochs |
+| FL Communication Rounds | 60 |
+| Local Epochs per Round | 2 |
+| FL Stage 1 — frozen backbone | Rounds 1–27 |
+| FL Stage 2 — unfreeze top-10 layers | Rounds 28–60 |
 | Class Weighting | Balanced (inverse-frequency) |
 | Data Split | 70:15:15 stratified per client |
+| Early Stopping Patience | 7 (centralized) |
 
 Both models use **ImageNet pretrained weights** with two-stage training: backbone frozen first, then top-10 layers unfrozen for domain-specific fine-tuning (BatchNorm remains frozen throughout).
 
@@ -100,6 +115,28 @@ Each model is evaluated on two test conditions:
 | AUC-ROC | One-vs-Rest macro AUC |
 | QWK | Quadratic Weighted Kappa — clinically relevant for ordinal DR grading |
 | **Robustness Drop** | `M(clean) − M(noisy)` — lower = more robust |
+
+---
+
+## Results
+
+### EfficientNetB0
+
+| Paradigm | Clean Acc | Clean F1 | Clean AUC | Clean QWK | Noisy Acc | Noisy F1 | Noisy AUC | Noisy QWK | QWK Drop |
+|----------|-----------|----------|-----------|-----------|-----------|----------|-----------|-----------|----------|
+| Centralized | 0.5040 | 0.5092 | 0.8192 | 0.7128 | 0.2186 | 0.1580 | 0.6634 | 0.1251 | +0.5876 |
+| Standard FedAvg | 0.5021 | 0.4980 | 0.8143 | 0.7004 | 0.2703 | 0.2180 | 0.6569 | 0.2117 | +0.4887 |
+| Noise-Aware FedAvg | 0.5007 | 0.4941 | 0.8088 | 0.6940 | 0.2656 | 0.2208 | **0.6777** | 0.2015 | +0.4925 |
+
+### MobileNetV2
+
+| Paradigm | Clean Acc | Clean F1 | Clean AUC | Clean QWK | Noisy Acc | Noisy F1 | Noisy AUC | Noisy QWK | QWK Drop |
+|----------|-----------|----------|-----------|-----------|-----------|----------|-----------|-----------|----------|
+| Centralized | 0.4170 | 0.3746 | 0.7239 | 0.5448 | 0.2022 | 0.1597 | 0.6078 | 0.0824 | +0.4625 |
+| Standard FedAvg | 0.5188 | 0.4356 | 0.7822 | 0.5612 | 0.3762 | 0.2429 | 0.6004 | 0.1847 | +0.3766 |
+| Noise-Aware FedAvg | 0.4368 | 0.4218 | 0.7628 | **0.6069** | 0.2755 | 0.2260 | **0.6329** | **0.2169** | +0.3899 |
+
+> **QWK Drop** measures sensitivity to image degradation — lower values indicate greater robustness. Noise-Aware FedAvg consistently achieves the highest noisy AUC across both architectures.
 
 ---
 
@@ -128,7 +165,7 @@ Each model is evaluated on two test conditions:
 
 Each experiment folder contains:
 ```
-├── models/    ← model checkpoints (.keras)
+├── models/    ← model checkpoints (.keras) — not tracked in git
 ├── logs/      ← metrics JSON, per-class CSV, summary CSV
 └── figures/   ← training curves, confusion matrix, ROC, robustness drop
 ```
@@ -145,3 +182,22 @@ Each experiment folder contains:
 
 ---
 
+## References
+
+- McMahan et al. (2017). *Communication-Efficient Learning of Deep Networks from Decentralized Data.* AISTATS.
+- Tan & Le (2019). *EfficientNet: Rethinking Model Scaling for CNNs.* ICML.
+- Mohan Raj et al. (2024). *Federated Learning for Diabetic Retinopathy Diagnosis.* arXiv:2411.00869.
+- Sandler et al. (2018). *MobileNetV2: Inverted Residuals and Linear Bottlenecks.* CVPR.
+- Hendrycks & Dietterich (2019). *Benchmarking Neural Network Robustness to Common Corruptions.* arXiv.
+
+---
+
+## Authors
+
+| Name | Role |
+|------|------|
+| Akira Agha Nugroho | Conceptualization, Methodology, Software, Data Curation |
+| Derry Riccardo | Conceptualization, Methodology, Data Curation, Formal Analysis, Writing |
+| Darrell Richie Wibawa | Methodology, Formal Analysis, Writing (original draft & review) |
+| Arya Krisna Putra | Supervisor |
+| Irene Anindaputri Iswanto | Supervisor |

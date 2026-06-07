@@ -51,11 +51,5 @@ gdrive_cache/
 tmp/
 temp/
 
-# ── Result folder — ignore berat, keep summary ───────────────────
+# ── Result folder — ignore model checkpoints only ────────────────
 Result/**/*.keras
-Result/**/*.png
-Result/**/*.jpg
-Result/**/training_history.csv
-Result/**/per_class_clean.csv
-Result/**/per_class_noisy.csv
-Result/**/fl_round_summary.csv
