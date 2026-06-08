@@ -133,10 +133,10 @@ Each model is evaluated on two test conditions:
 | Paradigm | Clean Acc | Clean F1 | Clean AUC | Clean QWK | Noisy Acc | Noisy F1 | Noisy AUC | Noisy QWK | QWK Drop |
 |----------|-----------|----------|-----------|-----------|-----------|----------|-----------|-----------|----------|
 | Centralized | 0.4170 | 0.3746 | 0.7239 | 0.5448 | 0.2022 | 0.1597 | 0.6078 | 0.0824 | +0.4625 |
-| Standard FedAvg | 0.4424 | 0.4294 | 0.7577 | 0.6016 | 0.2938 | 0.2459 | 0.5962 | 0.1878 | +0.4138 |
+| Standard FedAvg | 0.4499 | 0.4446 | 0.7648 | 0.6027 | 0.3023 | 0.2541 | 0.5995 | 0.2081 | +0.3947 |
 | Noise-Aware FedAvg | 0.4368 | 0.4218 | 0.7628 | **0.6069** | 0.2755 | 0.2260 | **0.6329** | **0.2169** | **+0.3899** |
 
-> On MobileNetV2, Noise-Aware FedAvg achieves the best result across **all** robustness metrics — highest clean QWK, noisy QWK, noisy AUC, and the smallest QWK drop.
+> On MobileNetV2, Noise-Aware FedAvg achieves the highest clean QWK, noisy QWK, noisy AUC, and the smallest QWK drop.
 
 > **QWK Drop** measures sensitivity to image degradation — lower values indicate greater robustness. Noise-Aware FedAvg achieves the highest noisy AUC across both architectures, and on MobileNetV2 it leads on every robustness metric including the smallest QWK drop.
 
